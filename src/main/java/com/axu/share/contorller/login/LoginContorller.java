@@ -46,7 +46,7 @@ public class LoginContorller {
         Subject subject = SecurityUtils.getSubject();//获得主体
         UsernamePasswordToken token = new UsernamePasswordToken(user.getUserName(), user.getUserPassword());//获得主体提交请求
         try {
-            subject.login(token);//登录
+            subject.login(token);//登  录
 
         }catch(AuthenticationException e){
             model.addAttribute("msg", "用户名或密码错误!");

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.axu.share.dao.CommentDao">
+
+    <sql id="CommentPojo">
+        comment_uuid as commentUuid,
+        user_name as userName,
+        user_uuid as userUuid,
+        comment_time as commentDate,
+        article_uuid as articleUuid,
+        article_name as articleName,
+        comment_contents as commentContents,
+        article_username as articleUserName,
+        article_useruuid as articleUserUuid,
+        comment_username as commentUserName,
+        comment_useruuid as commentUserUuid
+    </sql>
+
+    <!--添加评论-->
+    <insert id="insertComment" parameterType="com.axu.share.pojo.Comment">
+        insert into bysj_comment(
+            comment_uuid,
+            user_uuid,
+            user_name,
+            comment_time,
+            article_uuid,
+            article_name,
+            comment_contents,
+            article_username,
+            article_useruuid,
+            comment_username,
+            comment_useruuid,
+            scbs
+        )values(
+            #{commentUuid, jdbcType=VARCHAR},
+            #{userUuid, jdbcType=VARCHAR},
+            #{userName, jdbcType=VARCHAR},
+            sysdate,
+            #{articleUuid, jdbcType=VARCHAR},
+            #{articleName, jdbcType=VARCHAR},
+            #{commentContents, jdbcType=VARCHAR},
+            #{articleUserName, jdbcType=VARCHAR},
+            #{articleUserUuid, jdbcType=VARCHAR},
+            #{commentUserName, jdbcType=VARCHAR},
+            #{commentUserUuid, jdbcType=VARCHAR},
+            #{scbs, jdbcType=VARCHAR}
+        )
+
+    </insert>
+
+    <!--根据articleuuid搜索评论-->
+    <select id="getComment" parameterType="com.axu.share.pojo.Article" resultType="com.axu.share.pojo.Comment">
+        select <include refid="CommentPojo"/>
+        from bysj_comment
+        where
+          article_uuid = #{articleUuid, jdbcType=VARCHAR}
+          and scbs = 0
+        order by comment_time desc
+
+    </select>
+
+    <!--删除评论，将评论scbs置为1-->
+    <update id="deleteComment" parameterType="com.axu.share.pojo.Comment">
+        update bysj_comment
+        <set>
+            scbs = #{scbs ,jdbcType=VARCHAR}
+        </set>
+        where
+            comment_uuid = #{commentUuid, jdbcType=VARCHAR}
+    </update>
+
+    <!--获取用户的评论数-->
+    <select id="getUserCommentCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(*) from bysj_comment where user_uuid = #{userUuid, jdbcType=VARCHAR}
+    </select>
+
+</mapper>

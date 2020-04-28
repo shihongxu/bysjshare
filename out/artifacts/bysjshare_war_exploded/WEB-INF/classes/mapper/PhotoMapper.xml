@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.axu.share.dao.PhotoDao">
+<sql id="photoPojo">
+    user_uuid as userUuid,
+    article_uuid as articleUuid,
+    photo_url as photoUrl
+</sql>
+
+    <insert id="addPhoto" parameterType="com.axu.share.pojo.Photo">
+        insert into bysj_photo(
+            user_uuid,
+            article_uuid,
+            photo_url
+        )values (
+            #{userUuid, jdbcType=VARCHAR},
+            #{articleUuid, jdbcType=VARCHAR},
+            #{photoUrl, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="selectImg" resultType="com.axu.share.pojo.Photo">
+        select photoUrl
+        from(
+             select photo_url as photoUrl from bysj_photo
+                  where article_uuid is not null
+                    order by  dbms_random.value()
+        )where rownum &lt; 6
+
+    </select>
+
+</mapper>

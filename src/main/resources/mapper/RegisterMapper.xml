@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.axu.share.dao.RegisterDao">
+  <!--  <resultMap id="UserMap" type="com.axu.share.pojo.User" >
+    <result column="user_uuid" property="userUuid" jdbcType="VARCHAR" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="user_password" property="userPassword" jdbcType="VARCHAR" />
+    <result column="user_email" property="userEmail" jdbcType="VARCHAR" />
+    <result column="user_begintime" property="userBeginTime" jdbcType="DATE" />
+    <result column="user_tel" property="userTel" jdbcType="VARCHAR" />
+    <result column="user_sex" property="userSex" jdbcType="VARCHAR" />
+    <result column="user_description" property="userDescription" jdbcType="VARCHAR" />
+    <result column="user_shiro" property="userShiro" jdbcType="VARCHAR" />
+    <result column="hp_name" property="hpName" jdbcType="BLOB" />
+    <result column="hp_uuid" property="hpUuid" jdbcType="VARCHAR" />
+    </resultMap>
+-->
+    <insert id="addUser" parameterType="com.axu.share.pojo.User">
+      insert into bysj_user(
+        user_uuid,
+        user_name ,
+        user_password,
+        user_email,
+        user_begintime ,
+        user_tel ,
+        user_sex ,
+        user_description ,
+        user_shiro,
+        hp_name,
+        hp_uuid,
+        user_flag
+      )
+      values (
+        #{userUuid, jdbcType=VARCHAR},
+        #{userName, jdbcType=VARCHAR},
+        #{userPassword, jdbcType=VARCHAR},
+        #{userEmail, jdbcType=VARCHAR},
+        sysdate,
+        #{userTel, jdbcType=VARCHAR},
+        #{userSex, jdbcType=VARCHAR},
+        #{userDescription, jdbcType= VARCHAR},
+        #{userShiro, jdbcType=VARCHAR},
+        #{hpName, jdbcType=BLOB},
+        #{hpUuid, jdbcType=VARCHAR},
+        #{userFlag, jdbcType=VARCHAR}
+      )
+
+    </insert>
+
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.axu.share.dao.RoleDao">
+    <sql id="rolePojo">
+        user_uuid as userUuid,
+        role_id as roleId,
+        role_name as roleName
+    </sql>
+
+    <!--添加用户角色-->
+    <insert id="addUserRole" parameterType="com.axu.share.pojo.Role">
+        insert into bysj_user_role(
+         user_uuid,
+         role_id
+        )
+        values (
+           #{userUuid, jdbcType=VARCHAR},
+           #{roleId, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!--根据userUuid搜索用户角色-->
+    <select id="selectUserRole" parameterType="com.axu.share.pojo.User" resultType="java.lang.String">
+         select role_name as uesrRole
+         from bysj_role
+         where role_id = (
+            select role_id
+            from bysj_user_role
+            where user_uuid = #{userUuid, jdbcType=VARCHAR})
+    </select>
+
+    <!--根据roleName查询roleid-->
+    <select id="selectRole" parameterType="com.axu.share.pojo.User" resultType="com.axu.share.pojo.Role">
+        select t.role_id as roleId,
+               t.role_name as roleName,
+               t.user_uuid as userUuid
+        from bysj_role t
+        where t.role_name = #{userRole, jdbcType=VARCHAR}
+    </select>
+
+</mapper>

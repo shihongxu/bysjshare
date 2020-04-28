@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.axu.share.dao.myshare.MyShareDao">
+
+    <sql id="articlePojo">
+        article_uuid as articleUuid,
+        user_uuid as userUuid,
+        user_name as userName,
+        ARTICLE_NAME as articleName,
+        article_contents as articleContents,
+        article_type as articleType,
+        article_begintime as articleBeginDate,
+        article_publish as articlePublish,
+        comment_number as commentNumber,
+        article_views as viewsNumber
+    </sql>
+
+    <!--添加文章数据-->
+    <insert id="addArticleData" parameterType="com.axu.share.pojo.Article">
+        insert into bysj_article(
+          article_uuid,
+          user_uuid,
+          user_name,
+          article_name,
+          article_contents,
+          article_type,
+          article_begintime,
+          article_publish,
+          comment_number,
+          article_views,
+          article_flag
+        )values(
+          #{articleUuid,jdbcType=VARCHAR},
+          #{userUuid, jdbcType=VARCHAR},
+          #{userName, jdbcType=VARCHAR},
+          #{articleName, jdbcType=VARCHAR},
+          #{articleContents, jdbcType=VARCHAR},
+          #{articleType, jdbcType=VARCHAR},
+          sysdate,
+          #{articlePublish, jdbcType=VARCHAR},
+          #{commentNumber, jdbcType=VARCHAR},
+          #{viewsNumber, jdbcType=VARCHAR},
+          #{articleFlag, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <insert id="addArticleLable" parameterType="com.axu.share.pojo.Lable">
+        insert into bysj_article_lable(
+          article_uuid,
+          lable_name
+        )values(
+          #{articleUuid, jdbcType=VARCHAR},
+          #{lable_name, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!--首页文章数据初始化数据查询-->
+    <select id="selectArticleData" parameterType="com.axu.share.pojo.Article" resultType="com.axu.share.pojo.Article">
+
+        select *
+        from(
+            select A.*, ROWNUM RN
+            from
+             (select <include refid="articlePojo"/>
+                  from bysj_article
+                  where
+                    article_flag='1'
+                    and article_publish = '发布'
+                    <if test = "articleName != null and articleName != ''">
+                        and ARTICLE_NAME like concat(concat('%',#{articleName, jdbcType=VARCHAR}),'%')
+                    </if>
+                    <if test="articleType != null and articleType != ''">
+                        and article_type = #{articleType, jdbcType=VARCHAR}
+                    </if>
+                        order by comment_number desc
+              ) A
+            where ROWNUM <![CDATA[<=]]> ${page * size} )
+        where RN > ${(page-1) * size}
+
+    </select>
+
+    <!--按照文章uuid查询图片url-->
+    <select id="selectPhotoUrl" resultType="com.axu.share.pojo.Photo" parameterType="java.lang.String">
+        select article_uuid as articleUuid,
+               photo_url as photoUrl
+        from bysj_photo
+        where article_uuid = #{articleUuid, jdbcType=VARCHAR}
+    </select>
+
+    <!--查询文章总数-->
+    <select id="articleTotal" resultType="java.lang.Integer">
+        select count(*) from bysj_article WHERE article_publish = '发布' and article_flag='1'
+
+    </select>
+
+    <!--按条件查询文章总数-->
+    <select id="selectArticleTotal" resultType="java.lang.Integer" parameterType="com.axu.share.pojo.Article">
+        select count(*) from bysj_article
+        where article_flag='1'
+        and article_publish = '发布'
+          <if test="articleName != null">
+              and ARTICLE_NAME like concat(concat('%',#{articleName, jdbcType=VARCHAR}),'%')
+          </if>
+          <if test="articleType != null and articleType != ''">
+              and article_type = #{articleType, jdbcType=VARCHAR}
+          </if>
+    </select>
+    
+    <!--根据articleUuid  搜索文章-->
+    <select id="selectArticleUuid" parameterType="java.lang.String" resultType="com.axu.share.pojo.Article">
+        select <include refid="articlePojo"/>
+        from bysj_article
+        where article_flag='1'
+        and article_uuid = #{articleUuid, jdbcType=VARCHAR}
+    </select>
+
+    <!--根据文章作者名称搜索该作者所有发表的文章-->
+    <select id="selectUserArticleName" resultType="com.axu.share.pojo.Article" parameterType="com.axu.share.pojo.Article">
+        select article_name as articleName,
+                article_begintime as articleBeginDate,
+                article_uuid as articleUuid
+        from bysj_article
+        where
+        article_flag='1'
+        and article_publish = '发布'
+        AND user_name = #{userName, jdbcType=VARCHAR}
+        and article_flag = #{articleFlag, jdbcType=VARCHAR}
+
+    </select>
+
+    <!--获取最新的10条文章 名字，uuid， 时间 文章类型-->
+    <select id="selectNewArticle" resultType="com.axu.share.pojo.Article">
+        SELECT * FROM (select article_name as articleName,
+               article_uuid as articleUuid,
+               article_type as articleType,
+               article_begintime as articleBeginDate,
+               user_name as userName
+        from bysj_article
+        where article_flag='1'
+        and article_publish = '发布'
+        order by article_begintime desc)
+        WHERE rownum <![CDATA[<=]]> 10
+    </select>
+
+    <!--根据登录用户的id查询该用户的所有文章（发布和草稿）-->
+    <select id="selectArticleByUserUuid" parameterType="com.axu.share.pojo.User" resultType="com.axu.share.pojo.Article">
+        select *
+        from(
+            select A.*, ROWNUM RN
+            from
+                (select <include refid="articlePojo"/>
+                    from bysj_article
+                    where
+                    article_flag='1'
+                    and user_uuid = #{userUuid, jdbcType=VARCHAR}
+                ) A
+            where ROWNUM <![CDATA[<=]]> ${page * size} )
+        where RN > ${(page-1) * size}
+
+    </select>
+
+    <!--搜索用户的所有文章总数（发布和草稿）-->
+    <select id="getUserArticleCount" resultType="java.lang.Integer" parameterType="com.axu.share.pojo.User">
+        select count(*) from bysj_article
+        where
+        article_flag='1'
+        and user_uuid = #{userUuid}
+    </select>
+
+    <!--修改文章内容-->
+    <update id="updataArticle" parameterType="com.axu.share.pojo.Article">
+        update bysj_article
+        <set>
+            <if test="articleName != null">
+                article_name = #{articleName, jdbcType=VARCHAR},
+            </if>
+            <if test="articleContents != null">
+                article_contents = #{articleContents, jdbcType=VARCHAR},
+            </if>
+            <if test="articleType != null and articleType != ''">
+                article_type = #{articleType, jdbcType=VARCHAR},
+            </if>
+            <if test="articlePublish != null and articlePublish != '' ">
+                article_publish = #{articlePublish, jdbcType=VARCHAR},
+            </if>
+            <if test="commentNumber != null and commentNumber != ''">
+                comment_number = #{commentNumber, jdbcType=VARCHAR},
+            </if>
+            <if test="viewsNumber != null and viewsNumber != ''">
+                article_views = #{viewsNumber, jdbcType=VARCHAR},
+            </if>
+        </set>
+        where article_uuid = #{articleUuid, jdbcType=VARCHAR}
+    </update>
+
+    <!--删除文章 将articleFlag 置为0-->
+    <update id="deleteArticle" parameterType="com.axu.share.pojo.Article">
+        update bysj_article
+        <set>
+            <if test="articleFlag != null and articleFlag != ''">
+                article_flag = #{articleFlag, jdbcType=VARCHAR}
+            </if>
+        </set>
+        WHERE article_uuid = #{articleUuid, jdbcType=VARCHAR}
+    </update>
+
+    <!--获取全部文章基本数据-->
+    <select id="getArticles" resultType="com.axu.share.pojo.Article" parameterType="com.axu.share.pojo.Article">
+        select * from (
+          select t.*, ROWNUM RN
+            from (select
+                article_uuid as articleUuid,
+                user_uuid as userUuid,
+                user_name as userName,
+                ARTICLE_NAME as articleName,
+                article_type as articleType,
+                article_begintime as articleBeginDate,
+                article_publish as articlePublish,
+                comment_number as commentNumber,
+                article_views as viewsNumber
+             from bysj_article)t
+               where ROWNUM <![CDATA[<=]]> ${page * size})
+            where RN > ${(page-1) * size}
+    </select>
+
+    <!--获取全部文章总数-->
+    <select id="getArticleCount" resultType="java.lang.Integer">
+        select count(*) from bysj_article
+    </select>
+
+    <!--获取用户的文章总数-->
+    <select id="getUserArticleNumber" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(*) from bysj_article where user_uuid = #{userUuid, jdbcType=VARCHAR}
+    </select>
+
+</mapper>

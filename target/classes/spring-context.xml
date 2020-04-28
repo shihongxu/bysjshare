@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- 加载配置文件 -->
+    <!--配置扫描业务层组件Service层-->
+    <context:component-scan base-package="com.axu.share.service"></context:component-scan>
+    <context:component-scan base-package="com.axu.share.service.impl"></context:component-scan>
+
+    <!--<context:component-scan base-package="com.axu.share.pojo"></context:component-scan>-->
+
+    <!-- 加载数据库配置文件 -->
+    <context:property-placeholder location="classpath:*.properties"></context:property-placeholder>
+
+    <!--引入shiro的配置文件-->
+    <import resource="classpath:/spring-shiro.xml" />
+    <!--配置数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="maxActive" value="10" />
+        <property name="minIdle" value="5" />
+    </bean>
+
+    <!--配置事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!--使用注解的方式来控制事务-->
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+
+
+    <!--配置mybatis在spring中-->
+    <!--<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:mybatis.xml"></property>
+
+        &lt;!&ndash;配置mapper的路径&ndash;&gt;
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:mapper/*.xml</value>
+            </list>
+        </property>
+    </bean>
+-->
+    <!-- 配置sqlsessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis.xml"></property>
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 自动扫描mapping.xml文件 -->
+        <property name="mapperLocations" value="classpath*:mapper/*.xml"></property>
+
+        <!--<property name="typeAliasesPackage" value="com.axu.share.pojo"></property>-->
+    </bean>
+    <!--扫描dao层-->
+    <!--扫描生成所有的dao层对象，注入到spring容器里面-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.axu.share.dao"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+
+
+    <!--上传文件的配置-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
+
+
+</beans>

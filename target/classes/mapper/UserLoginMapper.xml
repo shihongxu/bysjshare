@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.axu.share.dao.UserLoginDao">
+  <!--<resultMap id="BaseResultMap" type="com.axu.sharere.pojo.User" >
+    <id column="ID" property="id" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="age" property="age" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="VARCHAR" />
+
+  </resultMap>-->
+
+
+  <select id="loginTest" resultType="com.axu.share.pojo.User" parameterType="String">
+    select t.* from bysj_test t
+      where
+        t.name = #{name, jdbcType=VARCHAR}
+  </select>
+
+  <insert id="insertUser" parameterType="com.axu.share.pojo.User">
+    insert into bysj_test t (t.name, t.id, t.age, t.sex)
+    values
+    (
+      #{name, jdbcType=VARCHAR},
+      #{id, jdbcType=VARCHAR},
+      #{age, jdbcType=INTEGER},
+      #{sex, jdbcType=VARCHAR}
+    )
+
+  </insert>
+
+
+</mapper>

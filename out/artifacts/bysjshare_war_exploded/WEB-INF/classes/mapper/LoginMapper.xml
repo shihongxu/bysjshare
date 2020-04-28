@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.axu.share.dao.LoginDao">
+
+    <sql id="userPojo">
+        user_uuid as userUuid,
+        user_name as userName,
+        user_password as userPassword,
+        user_email as userEmail,
+        user_begintime as userBeginTime,
+        user_tel as userTel,
+        user_sex as userSex,
+        user_description as userDescrition,
+        user_shiro as userShiro,
+        hp_name as hpName,
+        hp_uuid as hpUuid,
+        user_flag as userFlag
+    </sql>
+    <sql id = "queryWhere">
+        <if test="userUuid != null">
+            and user_uuid = #{userUuid, jdbcType=VARCHAR}
+        </if>
+        <if test = "userName != null">
+            and user_name = #{userName, jdbcType=VARCHAR}
+        </if>
+        <if test = "userPassword != null">
+            and user_password = #{userPassword, jdbcType=VARCHAR}
+        </if>
+        <if test="userEmail != null">
+            and user_email = #{userEmail, jdbcType=VARCHAR}
+        </if>
+        <if test="userBeginTime != null">
+            and user_begintime = #{userBeginTime, jdbcType= DATE}
+        </if>
+        <if test="userTel != null">
+            and user_tel = #{userTel, jdbcType=VARCHAR}
+        </if>
+        <if test = "userSex != null">
+            and user_sex = #{userTel, jdbcType=VARCHAR}
+        </if>
+        <if test="userDescription != null">
+            and user_desccription = #{jdbcType=BLOB}
+        </if>
+        <if test = "userShiro != null">
+            and user_shiro = #{userShiro, jdbcType=VARCHAR}
+        </if>
+        <if test = "hpName != null">
+            and hp_name = #{hpName, jdbcType=BLOB}
+        </if>
+        <if test = "hpUuid != null">
+            and hp_uuid = #{hpUuid, jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+    <select id="selectUser" parameterType="com.axu.share.pojo.User" resultType="com.axu.share.pojo.User">
+        select <include refid="userPojo" />
+        from bysj_user
+          where
+            user_flag = #{userFlag, jdbcType=VARCHAR}
+            <include refid = "queryWhere"/>
+    </select>
+
+</mapper>
